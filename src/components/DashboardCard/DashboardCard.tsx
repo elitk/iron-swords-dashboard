@@ -1,5 +1,3 @@
-// DashboardStatCard.js or DashboardStatCard.tsx\\
-
 interface DashboardCardProps {
   title: string;
   amount: number;
@@ -15,7 +13,6 @@ const DashboardCard = ({
   icon,
   percentage,
 }: DashboardCardProps) => {
-  // Determine the percentage indicator color based on positive or negative change
   const percentageColor = percentage.startsWith("-")
     ? "text-red-500"
     : "text-green-500";

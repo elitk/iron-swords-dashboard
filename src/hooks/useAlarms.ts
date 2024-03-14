@@ -1,4 +1,3 @@
-// src/hooks/useAlarms.ts
 import { useState, useEffect } from "react";
 import { Alarm } from "../types";
 import { fetchAlarmsHistory } from "../api/alarmsApi";

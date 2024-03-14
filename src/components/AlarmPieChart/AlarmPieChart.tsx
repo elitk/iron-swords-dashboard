@@ -12,7 +12,6 @@ type CategoryCount = {
 const COLORS = ["#8984d8", "#82ca9e", "#FFBB28", "#FF8042"];
 
 const AlarmPieChart = () => {
-  // Mapping and Aggregating Data for Recharts Pie Chart
   const { alarms, isLoading } = useAlarms("weekly");
   const categoryCounts = alarms.reduce<CategoryCount>((acc, item) => {
     const category = item.category_desc;
@@ -24,7 +23,6 @@ const AlarmPieChart = () => {
     return acc;
   }, {});
 
-  // Converting the object to an array suitable for the Recharts Pie chart
   const pieChartData = Object.values(categoryCounts);
 
   console.log(pieChartData);
