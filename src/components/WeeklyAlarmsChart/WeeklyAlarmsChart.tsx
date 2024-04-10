@@ -1,5 +1,4 @@
-
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -11,21 +10,21 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { useAlarms } from "../../hooks/useAlarms";
 import { aggregateChartData } from "../../utils/aggregateChartData";
+import { useAlarmsContext } from "../../context/AlarmsContext";
 const WeeklyAlarmsChart = () => {
-  const { alarms, isLoading } = useAlarms("weekly");
+  const { alarms, isLoading } = useAlarmsContext();
   const aggregatedData = useMemo(
     () => aggregateChartData(alarms, "alertDate"),
     [alarms]
   );
-//  if (isLoading) {
-//     return <div>Loading...</div>;
-//   }
+  //  if (isLoading) {
+  //     return <div>Loading...</div>;
+  //   }
 
-//   if (error) {
-//     return <div>Error loading data: {error.message}</div>;
-//   }
+  //   if (error) {
+  //     return <div>Error loading data: {error.message}</div>;
+  //   }
   return isLoading ? (
     <div>loading...</div>
   ) : (
@@ -47,7 +46,8 @@ const WeeklyAlarmsChart = () => {
           <Tooltip />
           <Legend />
           <Bar dataKey="Missiles" fill="#8884d8" />
-          <Bar dataKey="Hostile" fill="#82ca9d" />
+          <Bar dataKey="Hostile aircraft intrusion" fill="#82ca9d" />
+          <Bar dataKey="Terrorist infiltration" fill="#FFBB28" />
         </BarChart>
       </ResponsiveContainer>
     </div>

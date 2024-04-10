@@ -8,7 +8,7 @@ interface RouteConfig {
 }
 
 const routeConfig: RouteConfig[] = [
-  { path: "/", component: Home },
+  { path: "/", component: Dashboard },
   { path: "/dashboard", component: Dashboard },
 ];
 

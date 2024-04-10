@@ -9,9 +9,24 @@ export const useAlarms = (period: string) => {
   useEffect(() => {
     const fetchAlarms = async () => {
       setIsLoading(true);
+      let comparePeriod = "";
       try {
-        const response = await fetchAlarmsHistory(period);
-        console.log({ response });
+        switch (period) {
+          case "daily":
+            comparePeriod = "last-day";
+            break;
+          case "weekly":
+            comparePeriod = "last-week";
+            break;
+          case "monthly":
+            comparePeriod = "last-month";
+            break;
+          default:
+            comparePeriod = "last-week";
+            break;
+        }
+        const response = await fetchAlarmsHistory(comparePeriod);
+
         setAlarms(response.alarms);
       } catch (err) {
         setError(err as Error);

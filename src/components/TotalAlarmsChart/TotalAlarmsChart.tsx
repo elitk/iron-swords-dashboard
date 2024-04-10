@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -9,20 +9,21 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useAlarms } from "../../hooks/useAlarms";
 import { aggregateChartData } from "../../utils/aggregateChartData";
+import { useAlarmsContext } from "../../context/AlarmsContext";
 
 const TotalAlarmsChart = () => {
-  const { alarms, isLoading, error } = useAlarms("weekly");
-  const aggregatedData = useMemo(() => aggregateChartData(alarms, "date"), [alarms]);
-  console.count("TotalAlarmsChart");
+  const { alarms, error, isLoading } = useAlarmsContext();
+  const aggregatedData = useMemo(
+    () => aggregateChartData(alarms, "date"),
+    [alarms]
+  );
+
   return isLoading ? (
     <div>loading..</div>
   ) : (
     <div className="w-full bg-white p-5 rounded-lg shadow">
-      <h3 className="font-semibold text-lg mb-5">
-        Total Missiles vs Total Hostile
-      </h3>
+      <h3 className="font-semibold text-lg mb-5">Total Alarms</h3>
 
       <ResponsiveContainer width="100%" height={300}>
         {error ? (
@@ -50,8 +51,20 @@ const TotalAlarmsChart = () => {
               stroke="#8884d8"
               activeDot={{ r: 8 }}
             />
-            <Line type="monotone" dataKey="Hostile" stroke="#82ca9d" />
+            <Line
+              type="monotone"
+              dataKey="Hostile aircraft intrusion"
+              stroke="#82ca9d"
+              activeDot={{ r: 8 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="Terrorist infiltration"
+              stroke="#FFBB28"
+              activeDot={{ r: 8 }}
+            />
           </LineChart>
+          
         )}
       </ResponsiveContainer>
     </div>

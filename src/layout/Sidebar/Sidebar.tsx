@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 const navigation = [
-  { name: "Home", href: "/", icon: "🏠" },
+  // { name: "Home", href: "/", icon: "🏠" },
   { name: "Dashboard", href: "/dashboard", icon: "📅" },
   // { name: "Profile", href: "/profile", icon: "👤" },
   // Add more navigation items here

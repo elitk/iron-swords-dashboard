@@ -2,7 +2,7 @@ interface DashboardCardProps {
   title: string;
   amount: number;
   isLoading: boolean;
-  icon: string;
+  Icons: any[];
   percentage: string;
 }
 
@@ -10,7 +10,7 @@ const DashboardCard = ({
   title,
   amount,
   isLoading,
-  icon,
+  Icons,
   percentage,
 }: DashboardCardProps) => {
   const percentageColor = percentage.startsWith("-")
@@ -25,10 +25,15 @@ const DashboardCard = ({
       <p className="text-sm font-semibold">{title}</p>
       <p className="text-2xl">{amount}</p>
       <div className="flex items-center justify-between w-full">
-        <span className="text-3xl">{icon}</span>
+      <span className="flex items-center text-3xl">
+          {Icons.map((Icon, index) => (
+            <Icon key={index} />
+          ))}
+        </span>
         <p className={`text-sm ${percentageColor}`}>{percentage}</p>
+
       </div>
-      {/* </div> */}
+
     </div>
   );
 };

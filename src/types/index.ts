@@ -13,4 +13,5 @@ export type AlarmChartData = {
   name: string;
   Missiles: number;
   Hostile: number;
+  [key: string]: string | number;
 };
