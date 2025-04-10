@@ -13,10 +13,10 @@ import {
 import { aggregateChartData } from "../../utils/aggregateChartData";
 import { useAlarmsContext } from "../../context/AlarmsContext";
 const WeeklyAlarmsChart = () => {
-  const { alarms, isLoading } = useAlarmsContext();
+  const { currentAlarms, isLoading } = useAlarmsContext();
   const aggregatedData = useMemo(
-    () => aggregateChartData(alarms, "alertDate"),
-    [alarms]
+    () => aggregateChartData(currentAlarms, "alertDate"),
+    [currentAlarms]
   );
   //  if (isLoading) {
   //     return <div>Loading...</div>;

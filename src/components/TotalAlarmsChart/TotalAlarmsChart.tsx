@@ -13,11 +13,12 @@ import { aggregateChartData } from "../../utils/aggregateChartData";
 import { useAlarmsContext } from "../../context/AlarmsContext";
 
 const TotalAlarmsChart = () => {
-  const { alarms, error, isLoading } = useAlarmsContext();
-  const aggregatedData = useMemo(
-    () => aggregateChartData(alarms, "date"),
-    [alarms]
-  );
+  const { currentAlarms, error, isLoading } = useAlarmsContext();
+  
+  const aggregatedData = useMemo(() => {
+    if (!currentAlarms || !Array.isArray(currentAlarms)) return [];
+    return aggregateChartData(currentAlarms, "date");
+  }, [currentAlarms]);
 
   return isLoading ? (
     <div>loading..</div>

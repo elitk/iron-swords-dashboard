@@ -1,4 +1,4 @@
-import { Alarm, AlarmChartData } from "../types";
+import { Alarm } from "../types";
 import { shortDays } from "./convertDateToDay";
 
 const allCategories = [
@@ -7,12 +7,21 @@ const allCategories = [
   "Hostile aircraft intrusion",
 ];
 export function aggregateChartData(data: Alarm[], key?: keyof Alarm) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return [];
+  }
+  
   const aggregateAlarms = new Map();
 
   data.forEach((item) => {
+    if (!item || typeof item !== 'object') return;
+    
     const { category_desc } = item;
+    if (!category_desc) return;
 
     const alarmDate = item[key as keyof Alarm] as string;
+    if (!alarmDate) return;
+    
     const categoryName = alarmDate.includes("T")
       ? shortDays[new Date(alarmDate).getDay()]
       : alarmDate;
@@ -38,9 +47,15 @@ export function aggregateChartData(data: Alarm[], key?: keyof Alarm) {
 export const aggregateAlarmsByHour = (
   data: Alarm[]
 ): { hour: string; count: number }[] => {
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return [];
+  }
+  
   const countsByHour = new Map<string, number>();
 
   data.forEach((alarm) => {
+    if (!alarm || !alarm.alertDate) return;
+    
     const hourNumber = new Date(alarm.alertDate).getHours().toString();
     const hour =
       hourNumber.length === 1 ? `0${hourNumber}:00` : `${hourNumber}:00`;

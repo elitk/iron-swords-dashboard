@@ -16,8 +16,8 @@ interface HeatmapChartProps {
   title: string;
 }
 const HeatmapChart: React.FC<HeatmapChartProps> = ({ title }) => {
-  const { alarms, isLoading } = useAlarmsContext();
-  const data = !isLoading ? aggregateAlarmsByHour(alarms) : [];
+  const { currentAlarms, isLoading } = useAlarmsContext();
+  const data = !isLoading ? aggregateAlarmsByHour(currentAlarms) : [];
 
   const getColor = (count: number) => {
     if (count < 5) return "#83a6ed";

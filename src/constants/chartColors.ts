@@ -1,0 +1,1 @@
+export const CHART_COLORS = ["#8984d8", "#82ca9e", "#FFBB28", "#FF8042"] as const; 
