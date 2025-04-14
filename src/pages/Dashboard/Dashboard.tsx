@@ -1,155 +1,168 @@
-import React, { useCallback, useEffect, useState } from "react";
-import DashboardCard from "../../components/DashboardCard/DashboardCard"; // Adjust the import path as necessary
+import { useCallback, useEffect, useState, useMemo } from "react";
+import DashboardCard from "../../components/DashboardCard/DashboardCard";
 import TotalRevenueChart from "../../components/TotalAlarmsChart/TotalAlarmsChart";
 import ProfitThisWeekChart from "../../components/WeeklyAlarmsChart/WeeklyAlarmsChart";
-import { useAlarms } from "../../hooks/useAlarms";
 import MyPieChart from "../../components/AlarmPieChart/AlarmPieChart";
-import { comparePeriods } from "../../utils/comparePeriods";
-import { Alarm } from "../../types";
 import MapChart from "../../components/MapChart /MapChart";
 import HeatmapChart from "../../components/HeatmapChart/HeatmapChart";
 import { useAlarmsContext } from "../../context/AlarmsContext";
 import { LiaRocketSolid } from "react-icons/lia";
 import { GiJetFighter } from "react-icons/gi";
+import PeriodSelector from "../../components/PeriodSelector/PeriodSelector";
+import React from "react";
+import { AlarmPeriod } from "../../types/alarms";
+import { comparePeriods } from "../../utils/comparePeriods";
+
+const MemoizedTotalRevenueChart = React.memo(TotalRevenueChart);
+const MemoizedProfitThisWeekChart = React.memo(ProfitThisWeekChart);
+const MemoizedMyPieChart = React.memo(MyPieChart);
+const MemoizedMapChart = React.memo(MapChart);
+const MemoizedHeatmapChart = React.memo(HeatmapChart);
+const MemoizedDashboardCard = React.memo(DashboardCard);
 
 const Dashboard: React.FC = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState("weekly"); // Default to weekly
-  // const [selectedPeriod, setSelectedPeriod] = useState<Period>('weekly'); // Default to weekly
-  const { alarms, isLoading, fetchAlarms } = useAlarmsContext();
-  // const { alarms, isLoading } = useAlarms("weekly");
-  const { alarms: customDateAlarms } = useAlarms(selectedPeriod);
+  const [selectedPeriod, setSelectedPeriod] = useState<AlarmPeriod>(
+    AlarmPeriod.WEEKLY
+  );
+  const { currentAlarms, historicalAlarms, isLoading, fetchAlarms } =
+    useAlarmsContext();
+
+  const handlePeriodChange = useCallback((period: AlarmPeriod) => {
+    setSelectedPeriod(period);
+  }, []);
+
 
   useEffect(() => {
     fetchAlarms(selectedPeriod);
-  }, [selectedPeriod]);
+  }, [selectedPeriod, fetchAlarms]);
 
-  const alarmsAnalysis = (alarms: Alarm[], desc: string) => {
-    return alarms.filter((alarm) => alarm.category_desc === desc).length;
-  };
-  const missilesLength = alarmsAnalysis(alarms, "Missiles");
-  const hostileLength = alarmsAnalysis(alarms, "Hostile aircraft intrusion");
-  const customDateMissilesLength = alarmsAnalysis(customDateAlarms, "Missiles");
-  const customDateHostileLength = alarmsAnalysis(
-    customDateAlarms,
-    "Hostile aircraft intrusion"
+  const getCurrentAlarmsCount = useCallback(
+    (desc: string) => {
+      if (!currentAlarms || !Array.isArray(currentAlarms)) return 0;
+      return currentAlarms.filter((alarm) => alarm.category_desc === desc)
+        .length;
+    },
+    [currentAlarms]
   );
 
-  const alarmsLength = alarms.length;
-  const customDateAlamrsLength = customDateAlarms.length;
-
-  const dashboardCardsData = [
-    {
-      title: "Total Alarms",
-      amount: alarmsLength,
-      isLoading,
-      icons: [LiaRocketSolid, GiJetFighter],
-      percentage: comparePeriods(alarmsLength, customDateAlamrsLength),
+  const getHistoricalAlarmsCount = useCallback(
+    (desc: string) => {
+      if (!historicalAlarms || !Array.isArray(historicalAlarms)) return 0;
+      return historicalAlarms.filter((alarm) => alarm.category_desc === desc)
+        .length;
     },
-    {
-      title: "Total Missiles",
-      amount: missilesLength,
-      isLoading,
-      icons: [LiaRocketSolid],
-      percentage: comparePeriods(missilesLength, customDateMissilesLength),
-    },
-    {
-      title: "Total Hostile",
-      amount: hostileLength,
-      isLoading,
-      icons: [GiJetFighter],
-      percentage: comparePeriods(hostileLength, customDateHostileLength),
-    },
-    // {
-    //   title: "Total Views",
-    //   amount: 0,
-    //   isLoading,
-    //   icon: "👁️",
-    //   percentage: "0.43% ↑",
-    // },
-  ];
+    [historicalAlarms]
+  );
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPeriod(e.target.value);
-  };
-  const handleSubmit = async () => {
-    // await fetchData(selectedPeriod);
-  };
+  // Current period counts
+  const currentMissilesLength = useMemo(
+    () => getCurrentAlarmsCount("Missiles"),
+    [getCurrentAlarmsCount]
+  );
+  const currentHostileLength = useMemo(
+    () => getCurrentAlarmsCount("Hostile aircraft intrusion"),
+    [getCurrentAlarmsCount]
+  );
+  const currentAlarmsLength = useMemo(
+    () => (Array.isArray(currentAlarms) ? currentAlarms.length : 0),
+    [currentAlarms]
+  );
 
-  const options = [
-    { value: "daily", label: "Daily" },
-    { value: "weekly", label: "Weekly" },
-    { value: "monthly", label: "Monthly" },
-  ];
-  console.log({ selectedPeriod });
+  // Historical counts
+  const historicalMissilesLength = useMemo(
+    () => getHistoricalAlarmsCount("Missiles"),
+    [getHistoricalAlarmsCount]
+  );
+  const historicalHostileLength = useMemo(
+    () => getHistoricalAlarmsCount("Hostile aircraft intrusion"),
+    [getHistoricalAlarmsCount]
+  );
+  const historicalAlarmsLength = useMemo(
+    () => (Array.isArray(historicalAlarms) ? historicalAlarms.length : 0),
+    [historicalAlarms]
+  );
+
+  const dashboardCardsData = useMemo(
+    () => [
+      {
+        title: "Total Alarms",
+        amount: currentAlarmsLength,
+        isLoading,
+        Icons: [LiaRocketSolid, GiJetFighter],
+        percentage: comparePeriods(currentAlarmsLength, historicalAlarmsLength),
+      },
+      {
+        title: "Total Missiles",
+        amount: currentMissilesLength,
+        isLoading,
+        Icons: [LiaRocketSolid],
+        percentage: comparePeriods(
+          currentMissilesLength,
+          historicalMissilesLength
+        ),
+      },
+      {
+        title: "Hostile Aircraft",
+        amount: currentHostileLength,
+        isLoading,
+        Icons: [GiJetFighter],
+        percentage: comparePeriods(
+          currentHostileLength,
+          historicalHostileLength
+        ),
+      },
+    ],
+    [
+      currentAlarmsLength,
+      currentMissilesLength,
+      currentHostileLength,
+      isLoading,
+      historicalAlarmsLength,
+      historicalMissilesLength,
+      historicalHostileLength,
+    ]
+  );
+
+  const renderDashboardCards = useCallback(
+    () =>
+      dashboardCardsData.map((card, index) => (
+        <MemoizedDashboardCard key={index} {...card} />
+      )),
+    [dashboardCardsData]
+  );
+
   return (
-    <div className="p-5 space-y-5">
-      <div className="flex items-center mb-4">
-        <label htmlFor="period" className="text-sm mr-2 font-medium">
-          Period:
-        </label>
-        <LiaRocketSolid />
-        <select
-          id="period"
-          name="period"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 py-2 px-3"
-          onChange={handleChange}
-          value={selectedPeriod}
-        >
-          {options.map((option) => (
-            <option value={option.value}>{option.label}</option>
-          ))}
-        </select>
+    <div className="p-4">
+      <div className="mb-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <PeriodSelector
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={handlePeriodChange}
+        />
       </div>
-      <div
-        className={`p-5 grid grid-cols-1 md:grid-cols-${dashboardCardsData.length} lg:grid-cols-${dashboardCardsData.length} gap-4`}
-      >
-        {dashboardCardsData.map((cardData, index) => (
-          <DashboardCard
-            key={index}
-            title={cardData.title}
-            amount={cardData.amount}
-            isLoading={cardData.isLoading}
-            Icons={cardData.icons}
-            percentage={cardData.percentage}
-          />
-        ))}
-      </div>
-      {/* first section */}
-      <div className="flex flex-row w-full p-5">
-        <div className="w-2/3 mr-4">
-          <TotalRevenueChart />
-        </div>
-        <div className="w-1/3">
-          <ProfitThisWeekChart />
-        </div>
-      </div>
-      {/* first section */}
-      {/* second section */}
-      <div className="flex flex-row w-full p-5">
-        <div className="w-2/5 mr-4">
-          <MyPieChart
-            title="Total Alarm by category"
-            category="category_desc"
-          />
-        </div>
-        <div className="w-3/5">
-          <MapChart />
-        </div>
-      </div>
-      {/* second section */}
 
-      {/* third section */}
-      <div className="flex flex-row w-full p-5">
-        <div className="w-2/5 mr-4">
-          <MyPieChart title="Total Alarm by city" category="data" />
-        </div>
-        <div className="w-3/5">
-          <HeatmapChart title="Total Alarm by hour" />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        {renderDashboardCards()}
       </div>
-      {/* third section */}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <MemoizedTotalRevenueChart />
+        <MemoizedProfitThisWeekChart />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <MemoizedMyPieChart
+          title="Alarms by Category"
+          category="category_desc"
+        />
+        <MemoizedMapChart />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        <MemoizedHeatmapChart title="Alarms by Hour" />
+      </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default React.memo(Dashboard);
